@@ -38,6 +38,18 @@ def apply_fixes(project_dir: Path) -> None:
     )
     test_file.write_text(source, encoding="utf-8")
 
+    status_file = project_dir / "docs" / "IMPLEMENTATION_STATUS_AR.md"
+    if not status_file.is_file():
+        raise FileNotFoundError(f"NEXORA implementation status document not found: {status_file}")
+    status = status_file.read_text(encoding="utf-8")
+    status = _replace_once_or_already_patched(
+        status,
+        "أضيفت اختبارات GDScript تغطي هيكل الحملة، فتح المراحل، ألوان الندرات، مجموع احتمالات الندرة والضمانات، إعادة ضبط عدادات الحظ، أمثلة الكومبو، أولوية درع النواة، استمرارية سلامة النواة، صلاحية نقطة استعادة المعركة، رفض الجلسات المهزومة، ترحيل مخطط الحفظ القديم، تنظيف نقطة الاستعادة بعد الفوز/الخسارة، تحذير الزعيم، فتح الجذور، خسارة لا تفقد الموارد، والدمج الحتمي وشروطه. لم يمكن تشغيلها في بيئة الإنشاء الحالية لغياب Godot executable. فحص Python الساكن يتحقق من العقود المكتوبة داخل الملفات فقط ولا يعادل التحليل أو التشغيل داخل المحرك.",
+        "أضيفت اختبارات GDScript تغطي هيكل الحملة، فتح المراحل، ألوان الندرات، مجموع احتمالات الندرة والضمانات، إعادة ضبط عدادات الحظ، أمثلة الكومبو، أولوية درع النواة، استمرارية سلامة النواة، صلاحية نقطة استعادة المعركة، رفض الجلسات المهزومة، ترحيل مخطط الحفظ القديم، تنظيف نقطة الاستعادة بعد الفوز/الخسارة، تحذير الزعيم، فتح الجذور، خسارة لا تفقد الموارد، والدمج الحتمي وشروطه. اجتاز المشروع في GitHub Actions على Commit af6190ea94e4eb5ae74f906e30c235651df8e512 استيراد Godot 4.7.0 وتحليل السكربتات، ثم اجتازت اختبارات GDScript الـ16. كما نجحت اختبارات طبقة التصحيح الأربع وفحوصات Python الساكنة الـ113. هذا لا يثبت تصدير Android أو الأداء على جهاز فعلي؛ يلزم اختبار APK على أجهزة مستهدفة قبل الإصدار.",
+        "verified CI results in implementation status",
+    )
+    status_file.write_text(status, encoding="utf-8")
+
 
 def main() -> int:
     if len(sys.argv) != 2:
