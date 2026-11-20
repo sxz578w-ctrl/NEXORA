@@ -21,6 +21,7 @@ grep -qx 'NEXORA_Godot/tests/static_contract_check.py' "${ARCHIVE}.contents.txt"
 
 tar -xzf "$ARCHIVE" -C "$DEST_ROOT"
 PROJECT_DIR="${DEST_ROOT}/NEXORA_Godot"
+python3 "${REPO_ROOT}/patches/apply_source_fixes.py" "$PROJECT_DIR"
 for required in project.godot scenes/main.tscn scripts/ui/main.gd tests/run_tests.gd tests/static_contract_check.py; do
   [[ -f "${PROJECT_DIR}/${required}" ]] || { echo "ERROR: extracted source is missing ${required}" >&2; exit 3; }
 done

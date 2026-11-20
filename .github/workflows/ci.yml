@@ -37,6 +37,9 @@ jobs:
           PROJECT_DIR="$(./scripts/assemble-source.sh "$RUNNER_TEMP/nexora-source")"
           echo "NEXORA_PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+      - name: Test source overlay safety
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
       - name: Run static contract checks
         run: python "$NEXORA_PROJECT_DIR/tests/static_contract_check.py"
 
