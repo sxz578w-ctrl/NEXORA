@@ -48,7 +48,8 @@ def main() -> int:
     except (OSError, ValueError) as exc:
         print(f"Source patch failed safely: {exc}", file=sys.stderr)
         return 1
-    print("NEXORA source overlays: PASS")
+    # Keep stdout reserved for the extracted project path consumed by GitHub Actions.
+    print("NEXORA source overlays: PASS", file=sys.stderr)
     return 0
 
 
