@@ -1,0 +1,67 @@
+name: NEXORA CI
+
+on:
+  push:
+    branches:
+      - main
+      - 'build/**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nexora-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify NEXORA source and runtime tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reassemble and extract source
+        shell: bash
+        run: |
+          PROJECT_DIR="$(./scripts/assemble-source.sh "$RUNNER_TEMP/nexora-source")"
+          echo "NEXORA_PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+
+      - name: Run static contract checks
+        run: python "$NEXORA_PROJECT_DIR/tests/static_contract_check.py"
+
+      - name: Set up Godot 4.7.0
+        uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.0
+          use-dotnet: false
+          include-templates: false
+
+      - name: Verify Godot project import and script parsing
+        run: godot --headless --editor --path "$NEXORA_PROJECT_DIR" --quit
+
+      - name: Run GDScript test suite
+        run: godot --headless --path "$NEXORA_PROJECT_DIR" --script res://tests/run_tests.gd
+
+      - name: Remove generated editor cache
+        if: success()
+        run: rm -rf "$NEXORA_PROJECT_DIR/.godot"
+
+      - name: Upload assembled Godot project
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: NEXORA-Godot-source-${{ github.sha }}
+          path: ${{ runner.temp }}/nexora-source/NEXORA_Godot/
+          if-no-files-found: error
+          retention-days: 14
